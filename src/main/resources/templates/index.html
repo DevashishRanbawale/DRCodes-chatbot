@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DRCodes ChatBot</title>
+
+    <!-- External CSS -->
+    <link rel="stylesheet" th:href="@{/styles/style.css}" href="/styles/style.css" />
+
+    <!-- Bootstrap (Optional) -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" />
+
+    <!-- Markdown parser -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+
+<body>
+<div class="container">
+    <h2>DRCodes Chatbot</h2>
+
+    <h6 style="font-size: 1rem; font-weight: 400; color: #555;">
+        An intelligent AI assistant designed to deliver precise, context-aware answers for professionals and researchers.
+    </h6>
+
+    <div class="form-group">
+        <input type="text"
+               class="form-control"
+               id="userInput"
+               placeholder="Type your message here..." />
+    </div>
+
+    <button class="btn btn-primary" onclick="sendMessage()">Ask!</button>
+
+    <div id="response"></div>
+</div>
+
+<script>
+    async function sendMessage() {
+        const input = document.getElementById('userInput').value;
+        const responseDiv = document.getElementById('response');
+
+        if (!input) {
+            responseDiv.innerHTML = 'Please enter a message.';
+            return;
+        }
+
+        responseDiv.innerHTML = 'Loading...';
+
+        try {
+            const response = await fetch("/api/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    message: input
+                })
+            });
+
+            const data = await response.json();
+
+            const markdownText = data.choices?.[0]?.message?.content || 'No response received.';
+            responseDiv.innerHTML = marked.parse(markdownText);
+        } catch (error) {
+            responseDiv.innerHTML = 'Error: ' + error.message;
+        }
+    }
+</script>
+</body>
+</html>
